@@ -2,13 +2,16 @@
 gRPC example - Route Guide
 
 
-How to build project?
+<h3>How to build project?</h3>
+
 mvn clean compile package -Dmaven.test.skip=true
 
-How to run Server?
+<h3>How to run Server?</h3>
+
 cd target
 java -jar RouteGuideServer.jar
 
-How to run Client?
+<h3>How to run Client?</h3>
+
 cd target
 java -jar RouteGuideClient.jar
