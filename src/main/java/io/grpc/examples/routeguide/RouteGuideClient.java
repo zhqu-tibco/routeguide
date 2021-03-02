@@ -16,16 +16,6 @@
 
 package io.grpc.examples.routeguide;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.protobuf.Message;
-import io.grpc.Channel;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import io.grpc.examples.routeguide.RouteGuideGrpc.RouteGuideBlockingStub;
-import io.grpc.examples.routeguide.RouteGuideGrpc.RouteGuideStub;
-import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +25,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.protobuf.Message;
+
+import io.grpc.Channel;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.examples.routeguide.RouteGuideGrpc.RouteGuideBlockingStub;
+import io.grpc.examples.routeguide.RouteGuideGrpc.RouteGuideStub;
+import io.grpc.stub.StreamObserver;
+
 /**
  * Sample client code that makes gRPC calls to the server.
  */
@@ -43,7 +45,6 @@ public class RouteGuideClient {
 
   private final RouteGuideBlockingStub blockingStub;
   private final RouteGuideStub asyncStub;
-
   private Random random = new Random();
   private TestHelper testHelper;
 
@@ -85,7 +86,7 @@ public class RouteGuideClient {
           RouteGuideUtil.getLongitude(feature.getLocation()));
     }
   }
-
+ 
   /**
    * Blocking server-streaming example. Calls listFeatures with a rectangle of interest. Prints each
    * response feature as it arrives.
@@ -240,7 +241,7 @@ public class RouteGuideClient {
 
   /** Issues several different requests and then exits. */
   public static void main(String[] args) throws InterruptedException {
-    String target = "localhost:8980";
+    String target = "localhost:8981";
     if (args.length > 0) {
       if ("--help".equals(args[0])) {
         System.err.println("Usage: [target]");
@@ -263,21 +264,26 @@ public class RouteGuideClient {
     try {
       RouteGuideClient client = new RouteGuideClient(channel);
       // Looking for a valid feature
+      client.info("========================getFeature==========================");
       client.getFeature(409146138, -746188906);
 
       // Feature missing.
-      client.getFeature(0, 0);
+      //client.getFeature(0, 0);
+
+      client.info("\n\n\n\n\n========================listFeatures==========================");
 
       // Looking for features between 40, -75 and 42, -73.
-      client.listFeatures(400000000, -750000000, 420000000, -730000000);
+      client.listFeatures(400000000, -750000000, 410000000, -748000000);
 
+      client.info("\n\n\n\n\n========================recordRoute==========================");
       // Record a few randomly selected points from the features file.
-      client.recordRoute(features, 10);
+      client.recordRoute(features, 5);
 
+      client.info("\n\n\n\n\n========================routeChat==========================");
       // Send and receive some notes.
       CountDownLatch finishLatch = client.routeChat();
 
-      if (!finishLatch.await(1, TimeUnit.MINUTES)) {
+      if (!finishLatch.await(5, TimeUnit.MINUTES)) {
         client.warning("routeChat can not finish within 1 minutes");
       }
     } finally {
