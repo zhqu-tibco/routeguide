@@ -132,8 +132,9 @@ public class RouteGuideServer {
      */
     @Override
     public void getFeature(Point request, StreamObserver<Feature> responseObserver) {
-      responseObserver.onNext(checkFeature(request));
-      responseObserver.onCompleted();
+        info("*** Revcieved GetFeature: lat={0} lon={1}", RouteGuideUtil.getLatitude(request), RouteGuideUtil.getLongitude(request));
+    	responseObserver.onNext(checkFeature(request));
+    	responseObserver.onCompleted();
     }
 
     /**
@@ -148,7 +149,8 @@ public class RouteGuideServer {
       int right = max(request.getLo().getLongitude(), request.getHi().getLongitude());
       int top = max(request.getLo().getLatitude(), request.getHi().getLatitude());
       int bottom = min(request.getLo().getLatitude(), request.getHi().getLatitude());
-
+      info("*** Recieved ListFeatures: lowLat={0} lowLon={1} hiLat={2} hiLon={3}", bottom, top, right,
+    	        left);
       for (Feature feature : features) {
         if (!RouteGuideUtil.exists(feature)) {
           continue;
@@ -181,6 +183,8 @@ public class RouteGuideServer {
 
         @Override
         public void onNext(Point point) {
+        info("*** recordRoute: Recieved point {0}, {1}", RouteGuideUtil.getLatitude(point),
+                    RouteGuideUtil.getLongitude(point));
           pointCount++;
           if (RouteGuideUtil.exists(checkFeature(point))) {
             featureCount++;
@@ -221,6 +225,9 @@ public class RouteGuideServer {
       return new StreamObserver<RouteNote>() {
         @Override
         public void onNext(RouteNote note) {
+          info("*** routeChat: Recieved message \"{0}\" at {1}, {2}", note.getMessage(), note.getLocation()
+                    .getLatitude(), note.getLocation().getLongitude());
+
           List<RouteNote> notes = getOrCreateNotes(note.getLocation());
 
           // Respond with all previous notes at this location.
@@ -295,4 +302,7 @@ public class RouteGuideServer {
       return (int) (r * c);
     }
   }
+  private static void info(String msg, Object... params) {
+	    logger.log(Level.INFO, msg, params);
+	  }
 }
